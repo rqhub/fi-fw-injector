@@ -51,16 +51,16 @@
 #define PIN_ENA 12  // Enabled    // NOT IMPLEMENTED !!! 
 
 // PCB Pinout > Sensors
-#define PIN_ENDSTOP 3  // Endstop (homing)
+#define PIN_ENDSTOP 2  // Endstop (homing)
 #define PIN_FSR 999    // FSR / Syringe plunger detection    // NOT IMPLEMENTED !! 
 
 // PCB Pinout > Keypad Function Keys
 #define BTN_F1 9  // Forward Slow > Inject
 #define BTN_F2 8  // Stop 
 #define BTN_F3 7  // Backwards Slow > Remove Pressure 
-#define BTN_F4 6  // Dump Status Informations over serial / usb (requires a connexion to a computer)
-#define BTN_F5 5  // Forward Fast     // NOTE: FSR NOT IMPLEMENTED, The user has to Stop it manually.
-#define BTN_F6 4  // Backward Fast    // Stops when the endstop is triggered
+#define BTN_F4 5  // Dump Status Informations over serial / usb (requires a connexion to a computer)
+#define BTN_F5 4  // Forward Fast     // NOTE: FSR NOT IMPLEMENTED, The user has to Stop it manually.
+#define BTN_F6 3  // Backward Fast    // Stops when the endstop is triggered
 
 // PCB Pinout > Stepper Speed Slider 
 #define PIN_SLIDER A1   // NOT IMPLEMENTED !!
