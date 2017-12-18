@@ -106,7 +106,7 @@ void setup() {
   // Set pinmodes for the stepper driver controls  
   pinMode(PIN_STP, OUTPUT);
   pinMode(PIN_DIR, OUTPUT);
-  // pinMode(PIN_ENA, OUTPUT); // NOT USED
+  pinMode(PIN_ENA, OUTPUT); 
 
   pinMode(BTN_F1, INPUT_PULLUP);
   pinMode(BTN_F2, INPUT_PULLUP);
@@ -126,6 +126,7 @@ void setup() {
   // Initialize Step & Dir Pins
   digitalWrite( PIN_DIR, DIR_RWD);
   digitalWrite( PIN_STP, LOW);
+  digitalWrite(PIN_ENA, MOTOR_OFF); // Start with the steppers disabled
   
   // Open serial 
   Serial.begin(SERIAL_SPEED);
@@ -275,6 +276,8 @@ void loop() {
   // MOTOR ON/OFF HEARTBEAT
   //
   // Update the minutes timer (shutoff stepper if inactive)
+  // BUG: The driver board doesn't seem to have this function implemented.  Don't overheat the motor (trimpot)
+  // 
   if ( ts_diff_minutesTicker > MINUTES_TO_MICROS ) { // check is done every minute
     ts_last_minutesTicker = ts;
     // Increment the minute counter if the motor is idle, otherwise, reset the counter
@@ -324,11 +327,11 @@ void loop() {
     // In the even of Multiple buttons being pressed at the same time, the last one in this list wins
     // change the order if you feel another one should be winning (obviously, "emergency stop")
     if ( digitalRead(BTN_F3) == LOW ) { btnVal = 3; Serial.println("F3"); }
-    if ( digitalRead(BTN_F4) == LOW ) { btnVal = 4; Serial.println("F4"); }
-    if ( digitalRead(BTN_F5) == LOW ) { btnVal = 5; Serial.println("F5"); }
-    if ( digitalRead(BTN_F6) == LOW ) { btnVal = 6; Serial.println("F6"); }
+    if ( digitalRead(BTN_F4) == LOW ) { btnVal = 4; Serial.println("F4");  }
+    if ( digitalRead(BTN_F5) == LOW ) { btnVal = 5; Serial.println("F5");  }
+    if ( digitalRead(BTN_F6) == LOW ) { btnVal = 6; Serial.println("F6");  }
     if ( digitalRead(BTN_F1) == LOW ) { btnVal = 1; Serial.println("F1"); } // should be "homing" if the pinouts are correct
-    if ( digitalRead(BTN_F2) == LOW ) { btnVal = 2; Serial.println("F2"); } // should be "stop" if the pinouts are correct
+    if ( digitalRead(BTN_F2) == LOW ) { btnVal = 2; Serial.println("F2");  } // should be "stop" if the pinouts are correct
 
     // Implementation of the state machine logics (see notes hereabove)
     // The following code assumes that the buttons are set like this:
