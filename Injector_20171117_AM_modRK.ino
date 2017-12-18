@@ -1,5 +1,5 @@
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
-// Syringe Injector Model 2 (NEMA23 + PCB 20171101 + TB6560)
+// Syringe Injector Model 2 (NEMA23 + PCB 20171101 + TB6600)
 // Firmware Version 2017-12-18 -REV2
 // -----------------------------------------------------------
 //
@@ -20,11 +20,20 @@
 //
 // http://www.glennsweeney.com/tutorials/interrupt-driven-analog-conversion-with-an-atmega328p
 // https://bennthomsen.wordpress.com/arduino/peripherals/continuous-adc-capture/
+//  http://diyprojects.eu/wiring-and-running-tb6600-stepper-driver-with-arduino/
 //
 // -----------------------------------------------------------
 // 
 // tbd in next versions
 //    measure amounts, measure pressure (conflicts with interrupt, or will make it slow)
+//
+// -----------------------------------------------------------
+//
+//  TB6600 Configuration
+//    M1 - High |
+//    M2 - High | - > 1/16 microstepping
+//    M3 - Low  |
+//    M4 - Low   -> LOW = Driver us locked until power off then on (security) ; HIGH = autoreset
 // 
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
 
@@ -44,7 +53,7 @@
 #define STEPS_PER_MM (200.0*MICROSTEPPING/SCREW_PITCH)
 #define MICROLITER_PER_STEP (1.0*SYRINGE_AREA/STEPS_PER_MM)
 
-// PCB Pinout > DRIVER TB6650
+// PCB Pinout > DRIVER TB6600
 // NOTE // The Enabled Pin has been bypassed. The driver is always on. Carefull with overheat (trimpot)
 #define PIN_STP 10  // Step 
 #define PIN_DIR 11  // Direction
@@ -108,6 +117,7 @@ void setup() {
   pinMode(PIN_DIR, OUTPUT);
   pinMode(PIN_ENA, OUTPUT); 
 
+  // The PCB relies on the internal PULLUP of the arduino board
   pinMode(BTN_F1, INPUT_PULLUP);
   pinMode(BTN_F2, INPUT_PULLUP);
   pinMode(BTN_F3, INPUT_PULLUP);
@@ -115,9 +125,10 @@ void setup() {
   pinMode(BTN_F5, INPUT_PULLUP);
   pinMode(BTN_F6, INPUT_PULLUP);
 
+
   pinMode(PIN_ENDSTOP, INPUT);
   pinMode(PIN_FSR, INPUT);
-  pinMode(PIN_SLIDER, INPUT);
+  pinMode(PIN_SLIDER, INPUT); // NOT USED NOT TESTED
   
   // Not used
   // pinMode(LED_BUILTIN, OUTPUT);
