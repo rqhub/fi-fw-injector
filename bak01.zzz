@@ -77,8 +77,8 @@
 #define FREQ_HIGH 100 // Steps per second
 
 // interval is the half period (toggle up down)
-#define INTVL_LOW_MS  300 // 500 // (unsigned long)((1/FREQ_LOW)*1000000/2)  // Bug in CAST
-#define INTVL_HIGH_MS  30 // (unsigned long)((1/FREQ_HIGH)*1000000/2)
+#define INTVL_LOW_MS  3000 // 500 // (unsigned long)((1/FREQ_LOW)*1000000/2)  // Bug in CAST
+#define INTVL_HIGH_MS  70 // (unsigned long)((1/FREQ_HIGH)*1000000/2)
 #define INTVL_HOMING_MS 30 
 #define INTVL_CHGRATE_MS 1 
 
