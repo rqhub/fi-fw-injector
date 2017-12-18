@@ -1,6 +1,6 @@
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
 // Syringe Injector Model 2 (NEMA23 + PCB 20171101 + TB6560)
-// Firmware Version 2017-12-18
+// Firmware Version 2017-12-18 -REV2
 // -----------------------------------------------------------
 //
 // Usage Notes :
@@ -48,7 +48,10 @@
 // NOTE // The Enabled Pin has been bypassed. The driver is always on. Carefull with overheat (trimpot)
 #define PIN_STP 10  // Step 
 #define PIN_DIR 11  // Direction
-#define PIN_ENA 12  // Enabled    // NOT IMPLEMENTED !!! 
+#define PIN_ENA 12  // Enabled  
+#define MOTOR_ON HIGH // matches the driver board config
+#define MOTOR_OFF LOW // matches the driver board config
+
 
 // PCB Pinout > Sensors
 #define PIN_ENDSTOP 2  // Endstop (homing)
@@ -87,6 +90,9 @@
 #define MAX_STEPS 426265ul  //556293ul // before it hits the wall
 #define SYRBEG_STEPS 59630ul // 80266ul // just before the beginning of syringe
 
+#define MINUTES_BEFORE_MOTORSHUTOFF 5UL
+#define MINUTES_TO_MICROS 60000000UL
+//unused - #define MICROS_BEFORE_MOTORSHUTOFF (MINUTES_BEFORE_MOTORSHUTOFF * MINUTES_TO_MICROS)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // BOOT
@@ -141,8 +147,12 @@ int dir = DIR_STOP;                               // Direction of the stepper mo
 int stepVal = HIGH;                               // Step initial state, goes with the logic of the functions
 
 unsigned long ts = micros();                      // Last known time reading from the microcontroller
+                                                  // 2^32/1000000/60 = 71 minutes - https://www.arduino.cc/reference/en/language/functions/time/micros/
+unsigned long minutes_since_stop = 0UL;           // we keep track of minutes elapsed since stop (disable driver)
 unsigned long ts_last_step = ts;                  // stepper heartbeat : Previous time reading (to calc the diff)
 unsigned long ts_last_keypad = ts;                // keypad heartbeat : Previous time reading (to calc the diff)
+unsigned long ts_last_minutesTicker = ts;         // Count minutes : Previous time reading (to calc the diff)
+
 
 unsigned long ts_interval = INTVL_LOW_MS;         // Default "current speed" for the stepper (usefull for speed rampup calcs)
 unsigned long ts_interval_target = INTVL_LOW_MS;  // Default "target speed" for the stepper (usefull for speed rampup calcs)
@@ -251,6 +261,42 @@ void loop() {
   ts = micros();
   unsigned long ts_diff_step = ts - ts_last_step;
   unsigned long ts_diff_keypad = ts - ts_last_keypad;
+  unsigned long ts_diff_minutesTicker = ts - ts_last_minutesTicker;
+  // handle overflow
+  if ( ts > (4294967296UL - 102UL) ) { // multiple of 8
+    delayMicroseconds(102+8);
+    ts = micros();
+    ts_last_step = ts_diff_step + 8 ;
+    ts_last_keypad = ts_diff_keypad + 8;
+    ts_last_minutesTicker = ts_diff_minutesTicker + 8;
+  }
+  
+  ///////////////////
+  // MOTOR ON/OFF HEARTBEAT
+  //
+  // Update the minutes timer (shutoff stepper if inactive)
+  if ( ts_diff_minutesTicker > MINUTES_TO_MICROS ) { // check is done every minute
+    ts_last_minutesTicker = ts;
+    // Increment the minute counter if the motor is idle, otherwise, reset the counter
+    // the reenable part is also put in the keypad loop, so that it is more responsive (faster heartbeat)
+    if ( dir == DIR_STOP ) { 
+      minutes_since_stop += 1;
+      
+      // power off ...
+      if ( minutes_since_stop > MINUTES_BEFORE_MOTORSHUTOFF ) {
+        digitalWrite( PIN_ENA, MOTOR_OFF );
+        Serial.println("Disabling Motors");
+      } else {
+        // power on // bulletproofing against bugs, shouldn't be needed.
+        digitalWrite( PIN_ENA, MOTOR_ON );
+      }
+
+    } else {
+      // power on ...
+      minutes_since_stop = 0;
+      digitalWrite( PIN_ENA, MOTOR_ON );
+    }
+   }      
   
   
 
@@ -261,7 +307,7 @@ void loop() {
     
     // Updates the last time the keypad heartbeat was evaluated - keep this first
     ts_last_keypad = ts;
-    
+
 
     // Ramps up -or down- the current speed until it matches the target speed
     // This call has been put here because it is evaluated less often than directly in the loop
@@ -299,6 +345,15 @@ void loop() {
     if ( btnVal == 5 ) { dir = DIR_FWD; ts_interval = INTVL_LOW_MS; ts_interval_target = INTVL_HIGH_MS; digitalWrite( PIN_DIR, DIR_FWD);  }
     if ( btnVal == 6 ) { dir = DIR_RWD; ts_interval = INTVL_LOW_MS; ts_interval_target = INTVL_HOMING_MS; digitalWrite( PIN_DIR, DIR_RWD); }
     
+
+    // Revive the motors if needed
+    // Done here (duplicate from above) so that we have a faster response time.
+    // The duplicate has been kept to help understanding the code
+    if ( dir == DIR_FWD || dir == DIR_RWD ) {
+      minutes_since_stop = 0;
+      digitalWrite( PIN_ENA, MOTOR_ON );
+    }
+
   }
 
   ///////////////////
