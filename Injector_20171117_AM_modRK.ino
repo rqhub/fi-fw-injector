@@ -346,12 +346,13 @@ void loop() {
 
     // Implementation of the state machine logics (see notes hereabove)
     // The following code assumes that the buttons are set like this:
-            // F1 : EXTRUDE FWD
-            // F2 : EXTRUDE STOP
-            // F3 : EXTRUDE RWD
-            // F4 : PRINT CONSUMPTION & RESET
-            // F5 : SEEK FSR
-            // F6 : SEEK ENDSTOP
+            // F1 : EXTRUDE NORMAL 
+            // F2 : EXTRUDE SLOW
+            // F3 : EXTRUDE STOP
+            // F4 : EXTRUDE RWD
+            // REMOVED - F4 : PRINT CONSUMPTION & RESET
+            // F5 : FAST FORWARD / SEEK FSR
+            // F6 : FAST BACKWARDS / SEEK ENDSTOP
     if ( btnVal == 1 ) { dir = DIR_FWD; ts_interval_target = INTVL_LOW_MS; digitalWrite( PIN_DIR, DIR_FWD); }  
     if ( btnVal == 2 ) { dir = DIR_STOP; ts_interval_target = INTVL_LOW_MS; }
     if ( btnVal == 3 ) { dir = DIR_RWD; ts_interval_target = INTVL_LOW_MS; digitalWrite( PIN_DIR, DIR_RWD); }
