@@ -90,6 +90,7 @@
 
 // interval is the half period (toggle up down)
 #define INTVL_LOW_MS  300 // 500 // (unsigned long)((1/FREQ_LOW)*1000000/2)  // Bug in CAST
+#define INTVL_VERYLOW_MS  600 // 20171222 - implementing a very slow speed for priming
 #define INTVL_HIGH_MS  30 // (unsigned long)((1/FREQ_HIGH)*1000000/2)
 #define INTVL_HOMING_MS 30 
 #define INTVL_CHGRATE_MS 1 
@@ -354,9 +355,10 @@ void loop() {
             // F5 : FAST FORWARD / SEEK FSR
             // F6 : FAST BACKWARDS / SEEK ENDSTOP
     if ( btnVal == 1 ) { dir = DIR_FWD; ts_interval_target = INTVL_LOW_MS; digitalWrite( PIN_DIR, DIR_FWD); }  
-    if ( btnVal == 2 ) { dir = DIR_STOP; ts_interval_target = INTVL_LOW_MS; }
-    if ( btnVal == 3 ) { dir = DIR_RWD; ts_interval_target = INTVL_LOW_MS; digitalWrite( PIN_DIR, DIR_RWD); }
-    if ( btnVal == 4 ) { Serial.print(ts); Serial.print(" - Steps: "); Serial.print(stepCount); Serial.println(""); /* float microliters = MICROLITER_PER_STEP * stepCount; Serial.print(" muL: "); Serial.println(microliters); */ }
+    if ( btnVal == 2 ) { dir = DIR_FWD; ts_interval_target = INTVL_VERYLOW_MS; digitalWrite( PIN_DIR, DIR_FWD); }  
+    if ( btnVal == 3 ) { dir = DIR_STOP; ts_interval_target = INTVL_LOW_MS; }
+    if ( btnVal == 4 ) { dir = DIR_RWD; ts_interval_target = INTVL_LOW_MS; digitalWrite( PIN_DIR, DIR_RWD); }
+    // REPLACED ---- if ( btnVal == 4 ) { Serial.print(ts); Serial.print(" - Steps: "); Serial.print(stepCount); Serial.println(""); /* float microliters = MICROLITER_PER_STEP * stepCount; Serial.print(" muL: "); Serial.println(microliters); */ }
     if ( btnVal == 5 ) { dir = DIR_FWD; ts_interval = INTVL_LOW_MS; ts_interval_target = INTVL_HIGH_MS; digitalWrite( PIN_DIR, DIR_FWD);  }
     if ( btnVal == 6 ) { dir = DIR_RWD; ts_interval = INTVL_LOW_MS; ts_interval_target = INTVL_HOMING_MS; digitalWrite( PIN_DIR, DIR_RWD); }
     
