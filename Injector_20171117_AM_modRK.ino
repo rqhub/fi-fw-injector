@@ -259,7 +259,7 @@ void loop() {
   //    Normally, these should never be triggered, however, improperly fed coders do make logic mistakes. 
   //    Keep those conditions to avoid weird noises when they make mistakes.
   if ( ts_interval < INTVL_HOMING_MS ) { ts_interval = INTVL_HOMING_MS; }
-  if ( ts_interval > INTVL_LOW_MS ) { ts_interval = INTVL_LOW_MS; }
+  if ( ts_interval > INTVL_VERYLOW_MS ) { ts_interval = INTVL_VERYLOW_MS; }
   // 
   // Prevent hitting walls
   //    If the operator gets distracted ...
